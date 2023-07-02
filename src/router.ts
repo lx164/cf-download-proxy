@@ -47,12 +47,16 @@ router.get('/api/download', async req => {
   const url = new URL(req.url)
   
   let downloadUrlString: string | null = null
+  let fileName = ""
 
   for (const [key, value] of url.searchParams) {
     if (key === 'url') {
-      downloadUrlString = decodeURIComponent(value)
+      downloadUrlString = value
     }
-  }
+    if (key === 'name') {
+      fileName = value
+    }
+   }
 
   if (downloadUrlString == null || downloadUrlString.length === 0) {
     return new Response(renderError({
@@ -100,11 +104,12 @@ router.get('/api/download', async req => {
     const pathChunks = downloadUrlString.split('/')
 
     if (pathChunks.length > 0) {
-      const fileName = pathChunks[pathChunks.length - 1]
+      fileName = fileName ? fileName : pathChunks[pathChunks.length - 1]
 
       // we can't modify exist stream header, so we create a new one
       headers = new Headers(headers)
-      headers.set('Content-Disposition', `attachment; filename="${fileName}"`)
+      headers.set('Content-Disposition', `attachment; filename="${fileName}"`);
+      headers.set('Access-Control-Allow-Origin', '*')
     }
   }
 
