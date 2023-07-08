@@ -115,6 +115,7 @@ router.get('/static/:attachment/:name', async (req, params: any) => {
       if ([1, '1'].includes(params?.attachment)) {
         headers.set('Content-Disposition', `attachment; filename="${fileName}"`)
       };
+      headers.set('Cross-Origin-Resource-Policy', 'cross-origin')
       headers.set('Access-Control-Allow-Origin', '*')
     }
   }
