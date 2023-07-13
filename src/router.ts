@@ -48,7 +48,16 @@ router.get('/static/:attachment/:name', async (req, params: any) => {
   const url = new URL(req.url)
   
   let downloadUrlString: string | null = null
-  let fileName = params.name
+  let fileName = ''
+  if ([1, '1'].includes(params.name)) {
+    for (const [key, value] of url.searchParams) {
+      if (key === 'name') {
+        fileName = value
+      }
+     }
+  } else {
+    fileName = params.name;
+  }
 
   for (const [key, value] of url.searchParams) {
     if (key === 'url') {
@@ -108,12 +117,16 @@ router.get('/static/:attachment/:name', async (req, params: any) => {
     const pathChunks = downloadUrlString.split('/')
 
     if (pathChunks.length > 0) {
-      fileName = fileName ? fileName : pathChunks[pathChunks.length - 1]
+      // fileName = fileName ? fileName : pathChunks[pathChunks.length - 1]
 
       // we can't modify exist stream header, so we create a new one
       headers = new Headers(headers)
       if ([1, '1'].includes(params?.attachment)) {
-        headers.set('Content-Disposition', `attachment; filename="${fileName}"`)
+        if (fileName) {
+          headers.set('Content-Disposition', `attachment; filename="${fileName}"`)
+        } else {          
+          headers.set('Content-Disposition', `attachment;`)
+        }
       };
       headers.set('Cross-Origin-Resource-Policy', 'cross-origin')
       headers.set('Access-Control-Allow-Origin', '*')
